@@ -1,5 +1,10 @@
 #include <Servo.h>
 #include <PID_v1.h>
+#include <SPI.h>
+
+const int slaveSelectPin = 10;
+const int dataReadyPin = 6;
+const int chipSelectPin = 7;
 
 Servo s1;
 Servo s2;
@@ -26,6 +31,12 @@ int s1Opin = 2;
 int s2Opin = 3;  
 
 void setup() {
+  pinMode(slaveSelectPin, OUTPUT);
+  pinMode(dataReadyPin, INPUT);
+  pinMode(chipSelectPin, OUTPUT);
+  // init SPI
+  SPI.begin();
+  
   s1.attach(9);
   s2.attach(10); 
 
@@ -35,12 +46,13 @@ void setup() {
   Min1 = 0;
   Max2 = 180;
   Min2 = 0;
-  
+  // Min max limits
   myPID1.SetOutputLimits(Min1, Max1);
   myPID2.SetOutputLimits(Min2, Max2);
+  // This is speed
   myPID1.SetSampleTime(5);
   myPID2.SetSampleTime(5);
-
+  // reset to pos 0
   Input1 = analogRead(s1Ipin);
   s1.writeMicroseconds(Setpoint1);
 
@@ -54,13 +66,32 @@ void setup() {
 }
 
 void loop() {
+  // reading pos of servos
   Input1 = analogRead(s1Ipin);
   Input2 = analogRead(s2Ipin);
+  
+  //if (digitalRead(dataReadyPin) == HIGH) {}
+
+  // setting setpoints(will be set by the SPI input from raspi)
   Setpoint1 = 100;
   Setpoint2 = 100;
+
+  
   myPID1.Compute();
   myPID2.Compute();
   s1.writeMicroseconds(Output1);  
   s1.writeMicroseconds(Output2);  
 
+}
+
+void digitalSPIWrite(int address, int value) {
+  // take the SS pin low to select the chip:
+  digitalWrite(slaveSelectPin, LOW);
+  delay(10);
+  //  send in the address and value via SPI:
+  SPI.transfer(address);
+  SPI.transfer(value);
+  delay(10);
+  // take the SS pin high to de-select the chip:
+  digitalWrite(slaveSelectPin, HIGH);
 }
