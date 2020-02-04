@@ -61,7 +61,7 @@ bool limitswitchflag;
 bool debounce;
 
 void IRAM_ATTR ISR() {
-  
+    debounce = false;
     if(debounce == false){
     Serial.println("LIMIT SWITCH TRIGGERED");
     limitswitchflag = true;
@@ -189,7 +189,7 @@ void serialEvent() {
     }
   }
 }
-*/
+
 
 
 
@@ -227,7 +227,7 @@ void app_main(void)
         .post_setup_cb=my_post_setup_cb,
         .post_trans_cb=my_post_trans_cb
     };
-
+    
     //Configuration for the handshake line
     gpio_config_t io_conf={
         .intr_type=GPIO_INTR_DISABLE,
@@ -262,11 +262,13 @@ void app_main(void)
         t.length=128*8;
         t.tx_buffer=sendbuf;
         t.rx_buffer=recvbuf;
-        This call enables the SPI slave interface to send/receive to the sendbuf and recvbuf. The transaction is
-        initialized by the SPI master, however, so it will not actually happen until the master starts a hardware transaction
-        by pulling CS low and pulsing the clock etc. In this specific example, we use the handshake line, pulled up by the
-        .post_setup_cb callback that is called as soon as a transaction is ready, to let the master know it is free to transfer
-        data.
+        
+        //This call enables the SPI slave interface to send/receive to the sendbuf and recvbuf. The transaction is
+        //initialized by the SPI master, however, so it will not actually happen until the master starts a hardware transaction
+        //by pulling CS low and pulsing the clock etc. In this specific example, we use the handshake line, pulled up by the
+        //.post_setup_cb callback that is called as soon as a transaction is ready, to let the master know it is free to transfer
+        //data.
+        
         
         ret=spi_slave_transmit(RCV_HOST, &t, portMAX_DELAY);
 
@@ -277,3 +279,4 @@ void app_main(void)
     }
 
 }
+*/
