@@ -3,3 +3,7 @@ g++ -c pid.cpp -o pid.o
 
 To compile example code:
 g++ pid_example.cpp pid.o -o pid_example
+
+
+To use motor controler simply change the number of steps you wish to take in the loop, to change the speed you can either change the variable at any point in time or change it where its initilsed.
+
