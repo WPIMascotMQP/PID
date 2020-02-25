@@ -8,16 +8,13 @@ float currentstep2 = 0;
 void setup() {
   currentstep1 = 0;
   currentstep2 = 0;
-  Serial.begin(115200);
- 
-
-  
+  //Serial.begin(115200);
+  Serial.begin(2000000);
 
 }
 
 class Pulser
 {
-
   long highTime; // micoseconds of HIGH
   long lowTime; // microseconds of LOW
 
@@ -29,7 +26,6 @@ class Pulser
   public:
   unsigned long previousMicro; // last time servo updated
   unsigned long currentMicro;
-
 
   public:
   Pulser(int spin, int dPin, long high, long low)
@@ -44,7 +40,7 @@ class Pulser
         
     startState = LOW; 
     previousMicro = 0;
-    currentMicro = micros();
+    currentMicro = 0;
   }
      
   void Update()
@@ -54,20 +50,30 @@ class Pulser
 
     if((startState == HIGH) && (currentMicro - previousMicro >= highTime))
     {
+      //Serial.print((unsigned long)currentMicro);
+      //Serial.print("-");
+      //Serial.print((unsigned long)previousMicro);
+      //Serial.print("=");
       //Serial.println((unsigned long)currentMicro - previousMicro);
       previousMicro = currentMicro;  
       digitalWrite(serPin, startState);
       startState = LOW;
+
       if(dir1 == true){
         currentstep1 = currentstep1 + 0.5;
         }
       if(dir1 == false){
         currentstep1 = currentstep1 - 0.5;
         }
+
       
     }
     else if ((startState == LOW) && (currentMicro - previousMicro >= lowTime))
     {
+      //Serial.print((unsigned long)currentMicro);
+      //Serial.print("-");
+      //Serial.print((unsigned long)previousMicro);
+      //Serial.print("=");
       //Serial.println((unsigned long)currentMicro - previousMicro);
       previousMicro = currentMicro;
       digitalWrite(serPin, startState);
@@ -78,20 +84,20 @@ class Pulser
       if(dir1 == false){
         currentstep1 = currentstep1 - 0.5;
         }
-
     }
+   
 
   }
 };
 
 
 //Setting pins and speeds
-Pulser Pulser1(16, 17, 1000, 5);
+Pulser Pulser1(0, 4, 100, 50);
+//4294840669
 //Pulser Pulser2(5, 6, 100, 100);
 
 
 void motorMove(int mot1, int mot2, int mot3, int mot4){ 
-  while(!(currentstep1==mot1)&&!(currentstep2==mot1)){
     if(currentstep1<mot1){        
         digitalWrite(Pulser1.dirPin, HIGH);
         dir1 = true;
@@ -100,7 +106,7 @@ void motorMove(int mot1, int mot2, int mot3, int mot4){
         digitalWrite(Pulser1.dirPin, LOW);
         dir1 = false;
     }
-    /*
+     /* 
     if(currentstep2<mot2){
         digitalWrite(Pulser2.dirPin, HIGH);
         dir2 = true;
@@ -110,40 +116,24 @@ void motorMove(int mot1, int mot2, int mot3, int mot4){
         dir2 = false;
     }
     */
-    if(currentstep1 != mot1){
-        Pulser1.Update();
-//        Pulser1.Update();
-        
-//        if(dir1 == true){
-//          currentstep1 = currentstep1 + 1;
-//          //Serial.println("+ve");
-//          }
-//        if(dir1 == false){
-//          currentstep1 = currentstep1 - 1;
-//          //Serial.println("-ve");
-//
-//          }
-        //Serial.println(currentstep1);
+    unsigned long currentMicro2 = esp_timer_get_time();
+    unsigned long previousMicro2 = esp_timer_get_time();
 
-  
+    currentMicro2 = micros();
+    while(!(currentstep1==mot1)&&!(currentstep2==mot1)){
+      //currentMicro = esp_timer_get_time();
+      Pulser1.Update();
+      //previousMicro = esp_timer_get_time();
+      //Serial.println((unsigned long)currentMicro - previousMicro);
+      Serial.println(currentstep1);   
     }
-    /*
-    if(currentstep2 != mot2){
-        Pulser2.Update();
-        Pulser2.Update();
-        
-        
-        if(dir2 == true){
-          currentstep2 = currentstep2 - 1;}
-        if(dir2 == false){
-          currentstep2 = currentstep2 + 1;}
-        
-    }
-    */
-  }
-    
+    previousMicro2 = micros();
+    //Serial.println(previousMicro2-currentMicro2);
 }
 
 void loop() {
-  motorMove(-12600,1000,0,0);
+    motorMove(1,1000,0,0);
+    motorMove(12800,1000,0,0);
+
+
 }
